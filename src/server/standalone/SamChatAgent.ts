@@ -1,5 +1,6 @@
 import { SamChatAgent } from "@/server/features/sam/SamChatAgent";
 import { importRowsSchema } from "./import-schema";
+import { makeTransactionsReentrant } from "./reentrantTransactions";
 
 // Think's conversation storage, as copied by the legacy Docker import.
 const LEGACY_HISTORY_TABLES = [
@@ -15,6 +16,11 @@ const LEGACY_HISTORY_TABLES = [
 // preserves the logical conversation tree, compactions and config, without
 // restoring pending turns, tool executions or alarms.
 export class StandaloneSamChatAgent extends SamChatAgent {
+  constructor(ctx: DurableObjectState, env: Env) {
+    makeTransactionsReentrant(ctx.storage);
+    super(ctx, env);
+  }
+
   async legacyHistoryCounts() {
     const counts: Record<string, number> = {};
     for (const table of LEGACY_HISTORY_TABLES) {

@@ -268,19 +268,19 @@ function checkOptionalFeatures(env: EnvRecord, items: PreflightItem[]): void {
           message:
             "OpenRouter comes from the Every App gateway. An admin sets it with `pnpm everyapp secret set OPENROUTER_API_KEY`.",
         }
-      : get(env, "OPENROUTER_API_KEY")
+      : get(env, "OPENROUTER_API_KEY") || get(env, "ANTHROPIC_API_KEY")
         ? {
             key: "ai",
             name: "AI features",
             level: "ok",
-            message: "OPENROUTER_API_KEY set",
+            message: "AI provider key set",
           }
         : {
             key: "ai",
             name: "AI features",
             level: "info",
             message:
-              "OPENROUTER_API_KEY not set (optional) — SAM, the in-app SEO agent, is disabled.",
+              "ANTHROPIC_API_KEY or OPENROUTER_API_KEY not set (optional) — SAM, the in-app SEO agent, is disabled.",
           },
   );
 

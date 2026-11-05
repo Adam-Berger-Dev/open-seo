@@ -125,6 +125,10 @@ declare namespace Cloudflare {
       }
     >;
 
+    // Direct Anthropic key; takes priority over OpenRouter when set.
+    ANTHROPIC_API_KEY?: string;
+    // Optional Anthropic model id (defaults in openrouter.ts).
+    ANTHROPIC_MODEL?: string;
     // OpenRouter API key for the SAM in-app chat agent.
     OPENROUTER_API_KEY?: string;
     // Optional base URL to use another OpenRouter-compatible provider.

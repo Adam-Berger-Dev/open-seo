@@ -50,6 +50,8 @@ const config = JSON.parse(await readFile(`${root}/app/wrangler.json`, "utf8"));
 const allowed = [
   "DATAFORSEO_API_KEY",
   "CONTEXT_API_KEY",
+  "ANTHROPIC_API_KEY",
+  "ANTHROPIC_MODEL",
   "OPENROUTER_API_KEY",
   "OPENROUTER_BASE_URL",
   "OPENROUTER_MODEL",

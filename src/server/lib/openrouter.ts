@@ -1,3 +1,4 @@
+import { createAnthropic } from "@ai-sdk/anthropic";
 import { ConfigurationError, createGatewayFetch } from "@every-app/sdk/server";
 import {
   createOpenRouter,
@@ -16,6 +17,7 @@ import { getEnvValueSync, getWorkersEnv } from "@/server/lib/runtime-env";
  * resolves.
  */
 export type OpenRouterAccess =
+  | { anthropicApiKey: string; anthropicModel?: string }
   | { apiKey: string; baseURL?: string }
   | { gatewayFetch: typeof fetch };
 
@@ -48,6 +50,14 @@ export function getOpenRouterAccess(env: object): OpenRouterAccess | null {
       if (error instanceof ConfigurationError) return null;
       throw error;
     }
+  }
+  // A direct Anthropic key wins, so no call goes through OpenRouter.
+  const anthropicApiKey = getEnvValueSync(env, "ANTHROPIC_API_KEY");
+  if (anthropicApiKey) {
+    return {
+      anthropicApiKey,
+      anthropicModel: getEnvValueSync(env, "ANTHROPIC_MODEL"),
+    };
   }
   const apiKey = getEnvValueSync(env, "OPENROUTER_API_KEY");
   // Any OpenAI-compatible endpoint that speaks OpenRouter's chat API; unset
@@ -93,6 +103,9 @@ const DEFAULT_CHAT_AGENT_MODEL = "anthropic/claude-haiku-5.5";
 // fallback where OpenAI is blocked. Its routing needs the ZDR/provider tuning
 // below.
 const MINIMAX_M3 = "minimax/minimax-m3";
+
+// Model id for direct Anthropic calls. Override with ANTHROPIC_MODEL.
+const DEFAULT_ANTHROPIC_MODEL = "claude-sonnet-5-5";
 
 // OpenRouter rejects OpenAI models for requests from these countries ("This
 // model is not available in your region"). Workflows and Durable Objects run
@@ -144,6 +157,10 @@ export function buildChatAgentModel(
   modelId?: string,
   reasoningEffort: "max" | "low" = "max",
 ): LanguageModelV3 {
+  if ("anthropicApiKey" in access) {
+    const anthropic = createAnthropic({ apiKey: access.anthropicApiKey });
+    return anthropic(access.anthropicModel ?? DEFAULT_ANTHROPIC_MODEL);
+  }
   const model = modelId ?? DEFAULT_CHAT_AGENT_MODEL;
   const openrouter =
     "apiKey" in access

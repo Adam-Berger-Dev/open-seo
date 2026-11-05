@@ -40,6 +40,32 @@ it("sends OpenAI calls to MiniMax M3 from a country where OpenAI is blocked", as
   ).toBe("minimax/minimax-m3");
 });
 
+it("sends requests straight to Anthropic with a direct key", async () => {
+  const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+    Response.json({
+      id: "msg_1",
+      type: "message",
+      role: "assistant",
+      model: "claude-haiku-5-5",
+      content: [{ type: "text", text: "ok" }],
+      stop_reason: "end_turn",
+      usage: { input_tokens: 1, output_tokens: 1 },
+    }),
+  );
+  const { buildChatAgentModel } = await import("./openrouter");
+  await generateText({
+    model: buildChatAgentModel({
+      anthropicApiKey: "key",
+      anthropicModel: "claude-haiku-5-5",
+    }),
+    prompt: "hi",
+  });
+  expect(fetchMock).toHaveBeenCalledOnce();
+  expect(fetchMock.mock.calls[0]?.[0]).toBe(
+    "https://api.anthropic.com/v1/messages",
+  );
+});
+
 it("sends requests to a custom base URL without the region lookup", async () => {
   const fetchMock = vi
     .spyOn(globalThis, "fetch")
