@@ -25,7 +25,7 @@ async function requestedModel(trace: () => Promise<Response>) {
     .mockResolvedValueOnce(completion());
   const { buildChatAgentModel } = await import("./openrouter");
   await generateText({
-    model: buildChatAgentModel({ apiKey: "key" }),
+    model: buildChatAgentModel({ apiKey: "key" }, "openai/gpt-5.6-luna"),
     prompt: "hi",
   });
   const body = z
