@@ -85,7 +85,9 @@ export async function requireOpenRouterAccess(): Promise<OpenRouterAccess> {
 
 // OpenRouter model slug used for the SAM in-app chat agent. Override with
 // OPENROUTER_MODEL to swap models without a code change.
-const DEFAULT_CHAT_AGENT_MODEL = "anthropic/claude-sonnet-5.5";
+// shortcut: Haiku because OpenRouter sizes its credit check by model price, so
+// Sonnet fails on a $0 balance even with BYOK; use Sonnet once it has credit.
+const DEFAULT_CHAT_AGENT_MODEL = "anthropic/claude-haiku-5.5";
 
 // Previous default; kept reachable via OPENROUTER_MODEL for rollback, and the
 // fallback where OpenAI is blocked. Its routing needs the ZDR/provider tuning
@@ -128,7 +130,7 @@ async function openAiBlockedHere(): Promise<boolean> {
  * cost (providerMetadata.openrouter.usage.cost) — which we meter against the
  * shared usage-credit pool.
  *
- * Default model: Claude Sonnet 5.5 at `reasoning.effort: "max"` — "max" is
+ * Default model: Claude Haiku 5.5 at `reasoning.effort: "max"` — "max" is
  * valid at the OpenRouter API but missing from the SDK's effort union, so the
  * reasoning config rides in `extraBody`. Reasoning tokens stream on the
  * separate reasoning channel and are billed as output tokens, which the usage
