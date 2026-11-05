@@ -193,7 +193,10 @@ export class SamChatAgent extends Think {
   }
 
   private buildModel(reasoningEffort: "max" | "low") {
-    return buildSamChatModel(this.env, reasoningEffort);
+    // shortcut: low effort so reasoning cannot eat the 3,500-token reply budget;
+    // pass reasoningEffort again when that budget goes back up.
+    void reasoningEffort;
+    return buildSamChatModel(this.env, "low");
   }
 
   override getSkills() {
@@ -381,7 +384,9 @@ export class SamChatAgent extends Think {
         // the reply, issue #161) but below the 32k that, with 48 steps, let a
         // single turn outgrow the Durable Object memory limit.
         maxSteps: 40,
-        maxOutputTokens: 16_000,
+        // shortcut: OpenRouter refuses more than about 3,800 tokens of Sonnet on
+        // a $0 balance even with BYOK; restore 16_000 once the account has credit.
+        maxOutputTokens: 3_500,
       };
     });
   }
