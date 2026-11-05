@@ -30,11 +30,10 @@ const EAGER_DENYLIST: Array<{
     expected: "lazy-loaded behind the facade in src/server/billing/autumn.ts",
   },
   {
-    pattern:
-      /node_modules\/(workers-ai-provider|@ai-sdk\/(openai|anthropic))\//,
+    pattern: /node_modules\/(workers-ai-provider|@ai-sdk\/openai)\//,
     expected:
       "aliased to workers-ai-provider-stub.ts (@cloudflare/think's default " +
-      "provider path is dead code — our agents construct OpenRouter models)",
+      "provider path is dead code — our agents build their own models)",
   },
   {
     pattern: /node_modules\/just-bash\//,
